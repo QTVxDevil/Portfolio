@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="logo">
+            QTV
+        </div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#about">About me</a></li>
+                <li><a href="#project">Project</a></li>
+                <li><a href="#startup">Start up</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% include 'home.html' %}
+        {% include 'about.html' %}
+        {% include 'project.html' %}
+        {% include 'startup.html' %}
+        {% include 'contact.html' %}
+    </main>
+    <script>
+    // Handle nav active state, smooth scroll, and section display
+    const navLinks = document.querySelectorAll('.navbar a');
+    const sections = document.querySelectorAll('.content-section');
+    const header = document.querySelector('.site-header');
+    const headerHeight = header ? header.offsetHeight : 64;
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Remove active from all
+            navLinks.forEach(l => l.classList.remove('active'));
+            // Add active to clicked
+            this.classList.add('active');
+            // Show/hide sections
+            sections.forEach(section => {
+                if ('#' + section.id === this.getAttribute('href')) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+            // Scroll to section if exists
+            const section = document.querySelector(this.getAttribute('href'));
+            if (section) {
+                e.preventDefault();
+                const y = section.getBoundingClientRect().top + window.scrollY - headerHeight;
+                window.scrollTo({ top: y, behavior: 'smooth' });
+            }
+        });
+    });
+    </script>
+</body>
+</html>
