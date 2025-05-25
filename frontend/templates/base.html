@@ -34,6 +34,155 @@
     const sections = document.querySelectorAll('.content-section');
     const header = document.querySelector('.site-header');
     const headerHeight = header ? header.offsetHeight : 64;
+
+    // Animation for about-boxes on appear (with scroll trigger)
+    function animateAboutBoxesOnScroll() {
+        const aboutSection = document.getElementById('about');
+        if (!aboutSection) return;
+        const boxes = aboutSection.querySelectorAll('.about-box');
+        const revealBox = (box, idx) => {
+            if (box.classList.contains('visible')) return;
+            const rect = box.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 60) {
+                setTimeout(() => {
+                    box.classList.add('visible');
+                }, 200 * idx);
+            }
+        };
+        boxes.forEach((box, idx) => {
+            box.classList.remove('visible');
+        });
+        function onScroll() {
+            boxes.forEach((box, idx) => {
+                revealBox(box, idx);
+            });
+        }
+        // Initial check
+        onScroll();
+        // Listen for scroll while about is visible
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Remove listener when leaving about section
+        function cleanup() {
+            window.removeEventListener('scroll', onScroll);
+        }
+        // Optionally, clean up when switching section
+        aboutSection._cleanupScroll = cleanup;
+    }
+
+    // Animation for project-boxes on appear (with scroll trigger)
+    function animateProjectBoxesOnScroll() {
+        const projectSection = document.getElementById('project');
+        if (!projectSection) return;
+        const boxes = projectSection.querySelectorAll('.project-box');
+        const revealBox = (box, idx) => {
+            if (box.classList.contains('visible')) return;
+            const rect = box.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 60) {
+                setTimeout(() => {
+                    box.classList.add('visible');
+                }, 200 * idx);
+            }
+        };
+        boxes.forEach((box, idx) => {
+            box.classList.remove('visible');
+        });
+        function onScroll() {
+            boxes.forEach((box, idx) => {
+                revealBox(box, idx);
+            });
+        }
+        // Initial check
+        onScroll();
+        // Listen for scroll while project is visible
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Remove listener when leaving project section
+        function cleanup() {
+            window.removeEventListener('scroll', onScroll);
+        }
+        projectSection._cleanupScroll = cleanup;
+    }
+
+    // Animation for contact-boxes on appear (with scroll trigger)
+    function animateContactBoxesOnScroll() {
+        const contactSection = document.getElementById('contact');
+        if (!contactSection) return;
+        const boxes = contactSection.querySelectorAll('.contact-box');
+        const revealBox = (box, idx) => {
+            if (box.classList.contains('visible')) return;
+            const rect = box.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 60) {
+                setTimeout(() => {
+                    box.classList.add('visible');
+                }, 200 * idx);
+            }
+        };
+        boxes.forEach((box, idx) => {
+            box.classList.remove('visible');
+        });
+        function onScroll() {
+            boxes.forEach((box, idx) => {
+                revealBox(box, idx);
+            });
+        }
+        // Initial check
+        onScroll();
+        // Listen for scroll while contact is visible
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Remove listener when leaving contact section
+        function cleanup() {
+            window.removeEventListener('scroll', onScroll);
+        }
+        contactSection._cleanupScroll = cleanup;
+    }
+
+    // --- Restore last visited section on reload ---
+    function showSectionByHash(hash) {
+        let found = false;
+        navLinks.forEach(l => l.classList.remove('active'));
+        sections.forEach(section => {
+            if ('#' + section.id === hash) {
+                section.style.display = 'block';
+                found = true;
+                // Set nav active
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) link.classList.add('active');
+                });
+                // Animate about boxes if about section
+                if (section.id === 'about') animateAboutBoxesOnScroll();
+                // Animate project boxes if project section
+                if (section.id === 'project') animateProjectBoxesOnScroll();
+                // Animate contact boxes if contact section
+                if (section.id === 'contact') animateContactBoxesOnScroll();
+            } else {
+                // Clean up scroll listener if leaving about
+                if (section.id === 'about' && section._cleanupScroll) section._cleanupScroll();
+                // Clean up scroll listener if leaving project
+                if (section.id === 'project' && section._cleanupScroll) section._cleanupScroll();
+                // Clean up scroll listener if leaving contact
+                if (section.id === 'contact' && section._cleanupScroll) section._cleanupScroll();
+                section.style.display = 'none';
+            }
+        });
+        return found;
+    }
+
+    // On page load, show section by hash or default to home
+    window.addEventListener('DOMContentLoaded', function() {
+        const hash = window.location.hash || '#home';
+        showSectionByHash(hash);
+        // Remove scroll animation on reload
+        if (hash && hash !== '#home') {
+            const section = document.querySelector(hash);
+            if (section) {
+                const y = section.getBoundingClientRect().top + window.scrollY - headerHeight;
+                window.scrollTo({ top: y, behavior: 'auto' });
+            }
+        }
+        if (hash === '#about') animateAboutBoxesOnScroll();
+        if (hash === '#project') animateProjectBoxesOnScroll();
+        if (hash === '#contact') animateContactBoxesOnScroll();
+    });
+
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             // Remove active from all
@@ -45,9 +194,17 @@
                 if ('#' + section.id === this.getAttribute('href')) {
                     section.style.display = 'block';
                 } else {
+                    // Clean up scroll listener if leaving about
+                    if (section.id === 'about' && section._cleanupScroll) section._cleanupScroll();
+                    // Clean up scroll listener if leaving project
+                    if (section.id === 'project' && section._cleanupScroll) section._cleanupScroll();
+                    // Clean up scroll listener if leaving contact
+                    if (section.id === 'contact' && section._cleanupScroll) section._cleanupScroll();
                     section.style.display = 'none';
                 }
             });
+            // Update hash in URL
+            window.location.hash = this.getAttribute('href');
             // Scroll to section if exists
             const section = document.querySelector(this.getAttribute('href'));
             if (section) {
@@ -55,6 +212,12 @@
                 const y = section.getBoundingClientRect().top + window.scrollY - headerHeight;
                 window.scrollTo({ top: y, behavior: 'smooth' });
             }
+            // Animate about boxes if about section
+            if (this.getAttribute('href') === '#about') animateAboutBoxesOnScroll();
+            // Animate project boxes if project section
+            if (this.getAttribute('href') === '#project') animateProjectBoxesOnScroll();
+            // Animate contact boxes if contact section
+            if (this.getAttribute('href') === '#contact') animateContactBoxesOnScroll();
         });
     });
     </script>
