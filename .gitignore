@@ -1,0 +1,26 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Environment variables and secrets
+.env
+config.py
+
+# VS Code settings
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Python virtual environments
+venv/
+ENV/
+.venv/
+
+# Misc
+*.swp
+*.swo
